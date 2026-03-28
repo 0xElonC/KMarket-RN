@@ -5,7 +5,11 @@ import {Script, console2} from "forge-std/Script.sol";
 import {KMarketVault} from "../src/vault/KMarketVault.sol";
 import {SessionKeyRegistry} from "../src/registry/SessionKeyRegistry.sol";
 import {KMarketSettlement} from "../src/settlement/KMarketSettlement.sol";
+import {OriginLockBox} from "../src/bridge/OriginLockBox.sol";
+import {TreasuryRebalancer} from "../src/treasury/TreasuryRebalancer.sol";
+import {AaveAdapter} from "../src/treasury/AaveAdapter.sol";
 
+/// @notice Main deployment — Polygon chain (vault, settlement, rebalancer)
 contract Deploy is Script {
     function run() external {
         address admin = vm.envAddress("ADMIN");
@@ -27,15 +31,60 @@ contract Deploy is Script {
         KMarketSettlement settlement = new KMarketSettlement(address(vault), oracle, sequencer, admin);
         console2.log("KMarketSettlement:", address(settlement));
 
-        // 4. Grant roles
+        // 4. Deploy TreasuryRebalancer
+        TreasuryRebalancer rebalancer = new TreasuryRebalancer(address(vault), usdc, admin);
+        console2.log("TreasuryRebalancer:", address(rebalancer));
+
+        // 5. Grant roles
         vault.grantRole(vault.SETTLEMENT_ROLE(), address(settlement));
         vault.grantRole(vault.SEQUENCER_ROLE(), sequencer);
+        vault.grantRole(vault.REBALANCER_ROLE(), address(rebalancer));
 
-        // 5. Set Settlement as recorder for SessionKeyRegistry
+        // 6. Set Settlement as recorder for SessionKeyRegistry
         registry.setRecorder(address(settlement), true);
 
         vm.stopBroadcast();
 
-        console2.log("--- Deployment complete ---");
+        console2.log("--- Polygon deployment complete ---");
+    }
+}
+
+/// @notice Origin chain deployment — Arbitrum (OriginLockBox)
+contract DeployOrigin is Script {
+    function run() external {
+        address usdc = vm.envAddress("ORIGIN_USDC");
+        address guardian = vm.envAddress("GUARDIAN");
+        uint256 singleCap = vm.envOr("SINGLE_CAP", uint256(10_000e6));
+        uint256 dailyCap = vm.envOr("DAILY_CAP", uint256(100_000e6));
+
+        vm.startBroadcast();
+
+        OriginLockBox lockBox = new OriginLockBox(usdc, guardian, singleCap, dailyCap);
+        console2.log("OriginLockBox:", address(lockBox));
+
+        vm.stopBroadcast();
+
+        console2.log("--- Origin chain deployment complete ---");
+    }
+}
+
+/// @notice Aave adapter deployment — Polygon (run after Deploy)
+contract DeployAaveAdapter is Script {
+    function run() external {
+        address usdc = vm.envAddress("USDC");
+        address aUsdc = vm.envAddress("AAVE_AUSDC");
+        address aavePool = vm.envAddress("AAVE_POOL");
+        address rebalancer = vm.envAddress("REBALANCER");
+
+        vm.startBroadcast();
+
+        AaveAdapter adapter = new AaveAdapter(usdc, aUsdc, aavePool, rebalancer);
+        console2.log("AaveAdapter:", address(adapter));
+
+        // NOTE: After deployment, call rebalancer.setAdapter(address(adapter), true) via admin
+
+        vm.stopBroadcast();
+
+        console2.log("--- Aave adapter deployed ---");
     }
 }
