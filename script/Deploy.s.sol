@@ -43,9 +43,20 @@ contract Deploy is Script {
         // 6. Set Settlement as recorder for SessionKeyRegistry
         registry.setRecorder(address(settlement), true);
 
+        // 7. Initialize default pools on Settlement contract
+        bytes32 ethPool = keccak256("ETH_USDT_10S");
+        bytes32 btcPool = keccak256("BTC_USDT_10S");
+        settlement.initializePool(ethPool);
+        settlement.initializePool(btcPool);
+        console2.log("Pools initialized: ETH_USDT_10S, BTC_USDT_10S");
+
         vm.stopBroadcast();
 
         console2.log("--- Polygon deployment complete ---");
+        console2.log("POST-DEPLOY TODO:");
+        console2.log("  1. Deploy AaveAdapter via DeployAaveAdapter script");
+        console2.log("  2. rebalancer.setAdapter(aaveAdapterAddr, true)");
+        console2.log("  3. rebalancer.setKeeper(reactiveRelayerAddr, true)");
     }
 }
 

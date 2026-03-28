@@ -55,8 +55,8 @@ contract ReactiveLiquidityGuardian is AbstractReactive {
         criticalBufferBps = _criticalBufferBps;
         cooldownSeconds = _cooldownSeconds;
 
-        // LiquidityStateUpdated(uint256 totalUserDeposits, uint256 lpPool, uint256 vaultBalance)
-        LIQUIDITY_STATE_TOPIC0 = uint256(keccak256("LiquidityStateUpdated(uint256,uint256,uint256)"));
+        // Must match KMarketVault: event LiquidityStateUpdated(uint256 lpPool, uint256 totalUserDeposits, uint256 totalLockedBalance, uint256 timestamp)
+        LIQUIDITY_STATE_TOPIC0 = uint256(keccak256("LiquidityStateUpdated(uint256,uint256,uint256,uint256)"));
 
         SERVICE.subscribe(
             _vaultChainId,
@@ -86,9 +86,10 @@ contract ReactiveLiquidityGuardian is AbstractReactive {
         // Cooldown check
         if (block.timestamp < lastCallbackTimestamp + cooldownSeconds) return;
 
-        // Decode event data: (uint256 totalUserDeposits, uint256 lpPool, uint256 vaultBalance)
-        (uint256 totalUserDeposits, uint256 lpPool, uint256 vaultBalance) =
-            abi.decode(data, (uint256, uint256, uint256));
+        // Decode event data matching KMarketVault._emitLiquidityState() emission order:
+        // emit LiquidityStateUpdated(lpPool, totalUserDeposits, totalLockedBalance, timestamp)
+        (uint256 lpPool, uint256 totalUserDeposits,,) =
+            abi.decode(data, (uint256, uint256, uint256, uint256));
 
         // Calculate utilisation: how much of the vault balance is committed
         // utilisation = totalUserDeposits / (totalUserDeposits + lpPool)
@@ -117,7 +118,8 @@ contract ReactiveLiquidityGuardian is AbstractReactive {
             uint256 targetDeposits = (totalLiquidity * targetBufferBps) / 10_000;
             actionAmount = targetDeposits > totalUserDeposits ? targetDeposits - totalUserDeposits : 0;
             // Only deploy if we have enough idle USDC in vault
-            if (actionAmount == 0 || actionAmount > vaultBalance) return;
+            // Estimate vault available = lpPool (since lpPool tracks undeployed LP funds)
+            if (actionAmount == 0 || actionAmount > lpPool) return;
             level = WaterLevel.HEALTHY;
         }
 
