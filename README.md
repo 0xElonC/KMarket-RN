@@ -10,7 +10,18 @@
 
 ## Overview
 
-KMarket is a real-time grid-based prediction market where users bet on crypto price movements (ETH, BTC) within dynamic tick ranges. Each bet locks USDC, and the outcome is automatically settled based on the expiry price.
+KMarket is a **universal K-line prediction market** built on a simple but powerful premise: any data that can be quantified and tracked can be charted — and if it can be charted, it can be traded.
+
+Crypto prices, sports match statistics, political poll numbers, social media trending scores — all of it is rendered as familiar candlestick charts. Users interact with any market using the same grid-based trading mechanics they already know, with USDC as the unified collateral across all market types.
+
+| Market | Examples |
+|--------|----------|
+| 🪙 Crypto | ETH/USDC, BTC/USDC real-time price grids |
+| ⚽ Sports | Win-probability curves, live score trajectories |
+| 🗳️ Politics | Candidate poll-rating K-lines |
+| 🔥 Social | Trending topic heat indices |
+
+Each position locks USDC into a shared LP vault on Polygon, and outcomes are settled on-chain via Oracle-signed EIP-712 batches.
 
 **What makes KMarket unique is the Reactive Network integration:**
 
