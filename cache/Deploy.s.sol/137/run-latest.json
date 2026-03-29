@@ -1,0 +1,34 @@
+{
+  "transactions": [
+    {
+      "rpc": "https://polygon-bor.publicnode.com"
+    },
+    {
+      "rpc": "https://polygon-bor.publicnode.com"
+    },
+    {
+      "rpc": "https://polygon-bor.publicnode.com"
+    },
+    {
+      "rpc": "https://polygon-bor.publicnode.com"
+    },
+    {
+      "rpc": "https://polygon-bor.publicnode.com"
+    },
+    {
+      "rpc": "https://polygon-bor.publicnode.com"
+    },
+    {
+      "rpc": "https://polygon-bor.publicnode.com"
+    },
+    {
+      "rpc": "https://polygon-bor.publicnode.com"
+    },
+    {
+      "rpc": "https://polygon-bor.publicnode.com"
+    },
+    {
+      "rpc": "https://polygon-bor.publicnode.com"
+    }
+  ]
+}
