@@ -50,18 +50,18 @@ Arbitrum (Origin)           Reactive Network (ReactVM)           Polygon (Destin
 
 ## Deployed Contracts
 
-### Reactive Smart Contracts (Reactive Network — Kopli Testnet)
+### Reactive Smart Contracts (Reactive Network — Lasna Testnet)
 
 | Contract | Address |
-|----------|---------|
-| **ReactiveDepositRouter** | [`0x75DBbA4Aa772946741618396b27f476Bb7748063`](https://kopli.reactscan.net/address/0x75DBbA4Aa772946741618396b27f476Bb7748063) |
-| **ReactiveLiquidityGuardian** | [`0x2A53CC4BEF24FCfa449F58069b7D7fcC70640f33`](https://kopli.reactscan.net/address/0x2A53CC4BEF24FCfa449F58069b7D7fcC70640f33) |
+|----------|---------||
+| **ReactiveDepositRouter** | [`0x75DBbA4Aa772946741618396b27f476Bb7748063`](https://lasna.reactscan.net/address/0x75DBbA4Aa772946741618396b27f476Bb7748063) |
+| **ReactiveLiquidityGuardian** | [`0x2A53CC4BEF24FCfa449F58069b7D7fcC70640f33`](https://lasna.reactscan.net/address/0x2A53CC4BEF24FCfa449F58069b7D7fcC70640f33) |
 
-### Origin Chain (Amoy Testnet)
+### Origin Chain (Arbitrum Sepolia)
 
 | Contract | Address |
-|----------|---------|
-| **OriginLockBox** | [`0x40aC39b1bD26C65D5FaE878BF798f71d4f68F2CC`](https://amoy.polygonscan.com/address/0x40aC39b1bD26C65D5FaE878BF798f71d4f68F2CC) |
+|----------|---------||
+| **OriginLockBox** | [`0x40aC39b1bD26C65D5FaE878BF798f71d4f68F2CC`](https://sepolia.arbiscan.io/address/0x40aC39b1bD26C65D5FaE878BF798f71d4f68F2CC) |
 
 ### Destination Chain (Amoy Testnet)
 
@@ -134,9 +134,9 @@ This triggers `TreasuryRebalancer.rebalance(level, adapter, amount)` via Reactiv
 
 | Step | Description | Transaction Hash |
 |------|-------------|-----------------|
-| 1 | USDC Approve | [`0x9faf3438...193e0f`](https://amoy.polygonscan.com/tx/0x9faf34380027d525b00289057f972a350d3d5ab4649df01d7f201d6d73193e0f) |
-| 2 | Lock USDC in OriginLockBox | [`0x9aa54b6f...b294f1`](https://amoy.polygonscan.com/tx/0x9aa54b6ffdaa8524762035b38cc5128e56a478178481aca3bd2b5b3c4eb294f1) |
-| 3 | ReactiveDepositRouter react() | [`0x1d6644b3...def61f3`](https://kopli.reactscan.net/tx/0x1d6644b3526bb05b7ae3e2c31045ece1eeb2597cae6719a643fd8b5ebdef61f3) |
+| 1 | USDC Approve | [`0x9faf3438...193e0f`](https://sepolia.arbiscan.io/tx/0x9faf34380027d525b00289057f972a350d3d5ab4649df01d7f201d6d73193e0f) |
+| 2 | Lock USDC in OriginLockBox | [`0x9aa54b6f...b294f1`](https://sepolia.arbiscan.io/tx/0x9aa54b6ffdaa8524762035b38cc5128e56a478178481aca3bd2b5b3c4eb294f1) |
+| 3 | ReactiveDepositRouter react() | [`0x1d6644b3...def61f3`](https://lasna.reactscan.net/tx/0x1d6644b3526bb05b7ae3e2c31045ece1eeb2597cae6719a643fd8b5ebdef61f3) |
 | 4 | Vault credits user balance | [`0xe5512a84...7d2684f`](https://amoy.polygonscan.com/tx/0xe5512a843ca4579c85bf3f2f13503ad81bba0abccee230470358e6c9a7d2684f) |
 
 **Result:** `processedDeposits = true` — Vault user balance updated to `500000000` (500 USDC, 6 decimals).
@@ -147,8 +147,8 @@ This triggers `TreasuryRebalancer.rebalance(level, adapter, amount)` via Reactiv
 |------|-------------|-----------------|
 | 1 | LP approves USDC | [`0x2e268ae5...999da30`](https://amoy.polygonscan.com/tx/0x2e268ae5a96f1b267c041c25ec74a024d47de3ac816eee26207bbbd0e999da30) |
 | 2 | LP deposits into Vault | [`0x70ac4a02...1b0964c`](https://amoy.polygonscan.com/tx/0x70ac4a027c7aed0e9575c2484aecc790d78c21a90a20433be722f87fe1b0964c) |
-| 3 | Set Guardian thresholds | [`0x42d96d56...c95e1e`](https://kopli.reactscan.net/tx/0x42d96d568e848b62f5b3c590584362dd5e19a1f18d008ee736a079ad27c95e1e) |
-| 4 | Guardian detects low utilization | [`0x97fea38c...d5b9d38`](https://kopli.reactscan.net/tx/0x97fea38c72a0b6c8c6dbf6ee0bac40c3fb3a439004c62ab9d8d0fab41d5b9d38) |
+| 3 | Set Guardian thresholds | [`0x42d96d56...c95e1e`](https://lasna.reactscan.net/tx/0x42d96d568e848b62f5b3c590584362dd5e19a1f18d008ee736a079ad27c95e1e) |
+| 4 | Guardian detects low utilization | [`0x97fea38c...d5b9d38`](https://lasna.reactscan.net/tx/0x97fea38c72a0b6c8c6dbf6ee0bac40c3fb3a439004c62ab9d8d0fab41d5b9d38) |
 | 5 | Rebalancer deploys to Aave | [`0x15b74e80...cd607b0d`](https://amoy.polygonscan.com/tx/0x15b74e805597ab2eb0c9ee90f0043bd1a650d4b082857f95a8ba5e38cd607b0d) |
 
 **Result:** Guardian detected HEALTHY water level (low utilization) → TreasuryRebalancer deployed idle USDC to Aave V3 → `AaveAdapter.totalAssets() = 325000000` (325 USDC now earning yield).
