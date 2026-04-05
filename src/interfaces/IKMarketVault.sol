@@ -25,10 +25,7 @@ interface IKMarketVault {
     event BalancesSettled(uint256 userCount, int256 netDelta);
     event LPDeposited(address indexed provider, uint256 amount, uint256 shares);
     event LPWithdrawn(address indexed provider, uint256 amount, uint256 shares);
-    event CrossChainDeposited(bytes32 indexed depositId, address indexed user, uint256 amount);
     event LiquidityStateUpdated(uint256 lpPool, uint256 totalUserDeposits, uint256 totalLockedBalance, uint256 timestamp);
-    event RebalancedOut(address indexed adapter, uint256 amount);
-    event RebalancedIn(address indexed adapter, uint256 amount);
 
     // ============ Errors ============
     error ZeroAmount();
@@ -42,8 +39,7 @@ interface IKMarketVault {
     error NoBalance();
     error LengthMismatch();
     error InvalidShares();
-    error DepositAlreadyProcessed(bytes32 depositId);
-    error InvalidAdapter();
+    error SlippageExceeded(uint256 actual, uint256 minimum);
 
     // ============ User Functions ============
     function deposit(uint256 amount) external;
@@ -60,13 +56,6 @@ interface IKMarketVault {
 
     function cancelEmergencyWithdraw() external;
 
-    // ============ Cross-Chain Functions ============
-    function creditCrossChainDeposit(bytes32 depositId, address user, uint256 amount) external;
-
-    // ============ Rebalancer Functions ============
-    function rebalanceOut(address adapter, uint256 amount) external;
-    function rebalanceIn(address adapter, uint256 amount) external;
-
     // ============ Settlement Functions ============
     function settleBalances(
         address[] calldata users,
@@ -77,9 +66,9 @@ interface IKMarketVault {
     function updateLockedBalance(address user, uint256 amount) external;
 
     // ============ LP Functions ============
-    function lpDeposit(uint256 amount) external;
+    function lpDeposit(uint256 amount, uint256 minShares) external;
 
-    function lpWithdraw(uint256 shares) external;
+    function lpWithdraw(uint256 shares, uint256 minAmount) external;
 
     // ============ View Functions ============
     function balances(address user) external view returns (uint256);
@@ -109,6 +98,4 @@ interface IKMarketVault {
     function totalLPShares() external view returns (uint256);
 
     function fastWithdrawNonce(address user) external view returns (uint256);
-
-    function processedDeposits(bytes32 depositId) external view returns (bool);
 }

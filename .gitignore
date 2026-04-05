@@ -1,1 +1,20 @@
+# Compiler output
+cache/
+out/
+
+# Broadcast logs (contains deployed addresses & tx hashes)
+broadcast/
+
+# Dependencies (installed via forge install)
+lib/
+
+# Secrets
 .env
+.env.*
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

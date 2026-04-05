@@ -1,34 +1,28 @@
 {
   "transactions": [
     {
-      "rpc": "https://polygon-bor.publicnode.com"
+      "rpc": "https://polygon-mainnet.infura.io/v3/d5d91cf71a454e7c8eda31706695c919"
     },
     {
-      "rpc": "https://polygon-bor.publicnode.com"
+      "rpc": "https://polygon-mainnet.infura.io/v3/d5d91cf71a454e7c8eda31706695c919"
     },
     {
-      "rpc": "https://polygon-bor.publicnode.com"
+      "rpc": "https://polygon-mainnet.infura.io/v3/d5d91cf71a454e7c8eda31706695c919"
     },
     {
-      "rpc": "https://polygon-bor.publicnode.com"
+      "rpc": "https://polygon-mainnet.infura.io/v3/d5d91cf71a454e7c8eda31706695c919"
     },
     {
-      "rpc": "https://polygon-bor.publicnode.com"
+      "rpc": "https://polygon-mainnet.infura.io/v3/d5d91cf71a454e7c8eda31706695c919"
     },
     {
-      "rpc": "https://polygon-bor.publicnode.com"
+      "rpc": "https://polygon-mainnet.infura.io/v3/d5d91cf71a454e7c8eda31706695c919"
     },
     {
-      "rpc": "https://polygon-bor.publicnode.com"
+      "rpc": "https://polygon-mainnet.infura.io/v3/d5d91cf71a454e7c8eda31706695c919"
     },
     {
-      "rpc": "https://polygon-bor.publicnode.com"
-    },
-    {
-      "rpc": "https://polygon-bor.publicnode.com"
-    },
-    {
-      "rpc": "https://polygon-bor.publicnode.com"
+      "rpc": "https://polygon-mainnet.infura.io/v3/d5d91cf71a454e7c8eda31706695c919"
     }
   ]
 }

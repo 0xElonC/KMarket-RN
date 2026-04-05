@@ -35,6 +35,8 @@ contract KMarketSettlement is IKMarketSettlement, EIP712, ReentrancyGuard {
     mapping(uint256 => bytes32) private _batchRoots;
     /// batchNonce => stateRoot
     mapping(uint256 => bytes32) private _stateRoots;
+    /// userSeal => consumed (replay protection for selfSettleAll)
+    mapping(bytes32 => bool) public usedSeals;
 
     modifier onlySequencer() {
         if (msg.sender != sequencer) revert NotSequencer(msg.sender);
@@ -164,6 +166,10 @@ contract KMarketSettlement is IKMarketSettlement, EIP712, ReentrancyGuard {
         PoolLedger storage ledger = _poolLedgers[poolId];
         if (ledger.lastUpdateTime == 0) revert PoolNotInitialized(poolId);
 
+        // Replay protection: each seal can only be used once
+        if (usedSeals[userSeal]) revert SealAlreadyUsed(userSeal);
+        usedSeals[userSeal] = true;
+
         // Verify oracle signature on user-seal
         bytes32 structHash = keccak256(
             abi.encode(SELF_SETTLE_TYPEHASH, poolId, userSeal, msg.sender)
@@ -201,7 +207,17 @@ contract KMarketSettlement is IKMarketSettlement, EIP712, ReentrancyGuard {
 
         vault.settleBalances(users, deltas, lockedDeltas);
 
+        // Update pool ledger
+        ledger.totalBetsReceived += totalLocked;
+        if (netDelta > 0) {
+            ledger.totalPayouts += uint128(uint256(int256(netDelta))) + totalLocked;
+        } else {
+            ledger.totalPayouts += totalLocked - uint128(uint256(-int256(netDelta)));
+        }
+        ledger.lastUpdateTime = uint64(block.timestamp);
+
         emit SelfSettled(msg.sender, poolId, orders.length, netDelta);
+        emit PoolLedgerUpdated(poolId, ledger.totalBetsReceived, ledger.totalPayouts, ledger.lockedBets);
     }
 
     // ═══════════════════════════════════════════════════════════════

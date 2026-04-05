@@ -60,6 +60,7 @@ interface IKMarketSettlement {
     error NotSequencer(address caller);
     error EmptySettlements();
     error PoolNotInitialized(bytes32 poolId);
+    error SealAlreadyUsed(bytes32 seal);
     error ZeroAddress();
 
     // ============ Functions ============

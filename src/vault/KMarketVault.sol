@@ -18,8 +18,6 @@ contract KMarketVault is IKMarketVault, AccessControl, ReentrancyGuard, Pausable
     // ============ Roles ============
     bytes32 public constant SETTLEMENT_ROLE = keccak256("SETTLEMENT_ROLE");
     bytes32 public constant SEQUENCER_ROLE = keccak256("SEQUENCER_ROLE");
-    bytes32 public constant BRIDGE_ROLE = keccak256("BRIDGE_ROLE");
-    bytes32 public constant REBALANCER_ROLE = keccak256("REBALANCER_ROLE");
 
     // ============ Constants ============
     uint256 public constant SLOW_WITHDRAW_DELAY = 120; // 120 seconds (2 settlement cycles)
@@ -48,9 +46,6 @@ contract KMarketVault is IKMarketVault, AccessControl, ReentrancyGuard, Pausable
     // ============ Global Accounting ============
     uint256 public totalUserDeposits;
     uint256 public totalLockedBalance;
-
-    // ============ Cross-Chain ============
-    mapping(bytes32 => bool) public override processedDeposits;
 
     constructor(address _usdc, address _admin) EIP712("KMarketVault", "1") {
         require(_usdc != address(0) && _admin != address(0), "Zero address");
@@ -240,7 +235,7 @@ contract KMarketVault is IKMarketVault, AccessControl, ReentrancyGuard, Pausable
     //                          LP POOL
     // ═══════════════════════════════════════════════════════════════
 
-    function lpDeposit(uint256 amount) external override nonReentrant whenNotPaused {
+    function lpDeposit(uint256 amount, uint256 minShares) external override nonReentrant whenNotPaused {
         if (amount == 0) revert ZeroAmount();
 
         usdc.safeTransferFrom(msg.sender, address(this), amount);
@@ -251,6 +246,7 @@ contract KMarketVault is IKMarketVault, AccessControl, ReentrancyGuard, Pausable
         } else {
             shares = (amount * totalLPShares) / lpPool;
         }
+        if (shares < minShares) revert SlippageExceeded(shares, minShares);
 
         lpShares[msg.sender] += shares;
         totalLPShares += shares;
@@ -260,10 +256,11 @@ contract KMarketVault is IKMarketVault, AccessControl, ReentrancyGuard, Pausable
         _emitLiquidityState();
     }
 
-    function lpWithdraw(uint256 shares) external override nonReentrant {
+    function lpWithdraw(uint256 shares, uint256 minAmount) external override nonReentrant whenNotPaused {
         if (shares == 0 || lpShares[msg.sender] < shares) revert InvalidShares();
 
         uint256 amount = (shares * lpPool) / totalLPShares;
+        if (amount < minAmount) revert SlippageExceeded(amount, minAmount);
 
         lpShares[msg.sender] -= shares;
         totalLPShares -= shares;
@@ -272,62 +269,6 @@ contract KMarketVault is IKMarketVault, AccessControl, ReentrancyGuard, Pausable
         usdc.safeTransfer(msg.sender, amount);
 
         emit LPWithdrawn(msg.sender, amount, shares);
-        _emitLiquidityState();
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    //                   CROSS-CHAIN DEPOSIT (Reactive Network)
-    // ═══════════════════════════════════════════════════════════════
-
-    function creditCrossChainDeposit(bytes32 depositId, address user, uint256 amount)
-        external
-        override
-        onlyRole(BRIDGE_ROLE)
-        nonReentrant
-        whenNotPaused
-    {
-        if (amount == 0) revert ZeroAmount();
-        if (processedDeposits[depositId]) revert DepositAlreadyProcessed(depositId);
-
-        processedDeposits[depositId] = true;
-        balances[user] += amount;
-        totalUserDeposits += amount;
-
-        emit CrossChainDeposited(depositId, user, amount);
-        _emitLiquidityState();
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    //                  TREASURY REBALANCER (Reactive Network)
-    // ═══════════════════════════════════════════════════════════════
-
-    function rebalanceOut(address adapter, uint256 amount)
-        external
-        override
-        onlyRole(REBALANCER_ROLE)
-        nonReentrant
-    {
-        if (adapter == address(0)) revert InvalidAdapter();
-        if (amount == 0) revert ZeroAmount();
-
-        usdc.safeTransfer(adapter, amount);
-
-        emit RebalancedOut(adapter, amount);
-        _emitLiquidityState();
-    }
-
-    function rebalanceIn(address adapter, uint256 amount)
-        external
-        override
-        onlyRole(REBALANCER_ROLE)
-        nonReentrant
-    {
-        if (adapter == address(0)) revert InvalidAdapter();
-        if (amount == 0) revert ZeroAmount();
-
-        usdc.safeTransferFrom(adapter, address(this), amount);
-
-        emit RebalancedIn(adapter, amount);
         _emitLiquidityState();
     }
 

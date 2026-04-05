@@ -263,7 +263,7 @@ contract KMarketVaultTest is Test {
         // LP deposit to cover payouts
         vm.startPrank(lp);
         usdc.approve(address(vault), 10_000e6);
-        vault.lpDeposit(10_000e6);
+        vault.lpDeposit(10_000e6, 0);
         vm.stopPrank();
 
         // Alice wins +500, Bob loses -500
@@ -295,7 +295,7 @@ contract KMarketVaultTest is Test {
 
         vm.startPrank(lp);
         usdc.approve(address(vault), 5000e6);
-        vault.lpDeposit(5000e6);
+        vault.lpDeposit(5000e6, 0);
         vm.stopPrank();
 
         // Alice wins 300 net from LP
@@ -340,7 +340,7 @@ contract KMarketVaultTest is Test {
     function test_lpDeposit() public {
         vm.startPrank(lp);
         usdc.approve(address(vault), 5000e6);
-        vault.lpDeposit(5000e6);
+        vault.lpDeposit(5000e6, 0);
         vm.stopPrank();
 
         assertEq(vault.lpPool(), 5000e6);
@@ -351,8 +351,8 @@ contract KMarketVaultTest is Test {
     function test_lpWithdraw() public {
         vm.startPrank(lp);
         usdc.approve(address(vault), 5000e6);
-        vault.lpDeposit(5000e6);
-        vault.lpWithdraw(2500e6);
+        vault.lpDeposit(5000e6, 0);
+        vault.lpWithdraw(2500e6, 0);
         vm.stopPrank();
 
         assertEq(vault.lpPool(), 2500e6);
@@ -362,14 +362,14 @@ contract KMarketVaultTest is Test {
     function test_lpWithdraw_revert_invalidShares() public {
         vm.prank(lp);
         vm.expectRevert(IKMarketVault.InvalidShares.selector);
-        vault.lpWithdraw(100);
+        vault.lpWithdraw(100, 0);
     }
 
     function test_lp_profitSharing() public {
         // LP deposits 10000
         vm.startPrank(lp);
         usdc.approve(address(vault), 10_000e6);
-        vault.lpDeposit(10_000e6);
+        vault.lpDeposit(10_000e6, 0);
         vm.stopPrank();
 
         // Simulate losers increasing LP pool via settlement
@@ -391,7 +391,7 @@ contract KMarketVaultTest is Test {
 
         // LP withdraws all shares, gets profit
         vm.prank(lp);
-        vault.lpWithdraw(10_000e6); // all shares
+        vault.lpWithdraw(10_000e6, 0); // all shares
 
         assertEq(usdc.balanceOf(lp), 100_500e6); // original 100k - 10k + 10.5k
     }
@@ -443,7 +443,7 @@ contract KMarketVaultTest is Test {
 
         vm.startPrank(lp);
         usdc.approve(address(vault), 5000e6);
-        vault.lpDeposit(5000e6);
+        vault.lpDeposit(5000e6, 0);
         vm.stopPrank();
 
         assertEq(vault.getTotalAssets(), 6000e6);

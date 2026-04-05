@@ -55,7 +55,7 @@ contract KMarketSettlementTest is Test {
         // LP provides liquidity
         vm.startPrank(lp);
         usdc.approve(address(vault), 50_000e6);
-        vault.lpDeposit(50_000e6);
+        vault.lpDeposit(50_000e6, 0);
         vm.stopPrank();
     }
 
